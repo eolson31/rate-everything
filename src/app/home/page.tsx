@@ -1,12 +1,13 @@
-import PostFeed from "../post_feed";
+// app/page.tsx
 import { get_posts } from "../queries";
+import PostFeedClient from "../home/PostFeedClient";
 
 export default async function Home() {
-    const posts = await get_posts();
+  const posts = await get_posts();
 
   return (
     <div>
-        <PostFeed posts={posts}/>
+      <PostFeedClient posts={posts} />
     </div>
   );
 }
