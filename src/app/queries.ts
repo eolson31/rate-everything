@@ -14,3 +14,11 @@ export async function get_posts() {
     });
     return posts;
 }
+
+export async function create_user(username: string) {
+    return await prisma.user.create({
+        data: {
+            name: username
+        }
+    })
+}
