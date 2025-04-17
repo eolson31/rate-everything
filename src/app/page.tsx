@@ -1,12 +1,5 @@
-import PostFeed from "./post_feed";
-import { get_posts } from "./queries";
+import { redirect } from "next/navigation";
 
-export default async function Home() {
-    const posts = await get_posts();
-
-  return (
-    <div>
-        <PostFeed posts={posts}/>
-    </div>
-  );
+export default function Page() {
+  redirect("/login");
 }
