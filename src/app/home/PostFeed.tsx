@@ -44,6 +44,7 @@ export default function PostFeed() {
       }),
     });
     if (result.ok) {
+      // Delete post from the local list as to not make unnecessary database calls
       setPosts(previous => previous.filter(post => post.id !== postID));
     } else {
       console.error("Failed to delete post", postID);
@@ -56,6 +57,7 @@ export default function PostFeed() {
             <div key={`post-container-${post.id}`} style={{border: "1px solid black", display: "flex", flexDirection: "row", width: "50%"}}>
               <div>
                 <p key={`title-${post.id}`} style={{fontSize: "40px"}}>{post.title}</p>
+                <p key={`description-${post.id}`} style={{fontSize: "24px"}}>{`${post.description}`}</p>
                 <p key={`author-${post.id}`}>{`By: ${post.author.name}`}</p>
                 <p key={`timestamp-${post.id}`}>{`Posted on: ${post.createdAt.toLocaleDateString()} at ${post.createdAt.toLocaleTimeString()}`}</p>
                 <p key={`rating-${post.id}`}>{`Rating: ${post.rating}/5`}</p>
