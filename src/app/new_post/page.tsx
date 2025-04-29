@@ -1,18 +1,49 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { describe } from "node:test";
+import { useEffect, useState } from "react";
 
 export default function newPost() {
   const router = useRouter();
-  const [rating, setRating] = useState(0);
+  const [title, setTitle] = useState("");
   const [review, setReview] = useState("");
+  const [rating, setRating] = useState(0);
+  const [authorID, setAuthorID] = useState<number | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    const storedUserID = Number(localStorage.getItem("userID"));
+    if (storedUserID) {
+      setAuthorID(storedUserID);
+    }
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Form submitted:", { rating, review });
-    router.push("/home");
-    // Here you would usually send to your server
+    // Check username
+    if (!authorID) {
+      alert("You must be logged in to submit a review.");
+      return;
+    }
+    // Send POST request to server
+    const result = await fetch("/api/posts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          authorID,
+          title,
+          description: review,
+          rating: Number(rating),
+        }),
+    });
+    // Handle response
+    if (result.ok) {
+      const data = await result.json();
+      console.log("Post created in database:", data);
+      router.push("/home");
+    } else {
+      console.error("Failed to submit post");
+    }
   };
 
   return (
@@ -26,6 +57,10 @@ export default function newPost() {
           </label>
           <input
             id="title"
+            value={title}
+            onChange={(e) => {
+              if (e.target.value.length <= 140) setTitle(e.target.value);
+            }}
             type="text"
             className="border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
             placeholder="Enter title..."

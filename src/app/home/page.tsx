@@ -1,13 +1,25 @@
-// app/page.tsx
-import { get_posts } from "../queries";
-import PostFeedClient from "../home/PostFeedClient";
+// components/PostFeedClient.tsx
+"use client";
 
-export default async function Home() {
-  const posts = await get_posts();
+import { useRouter } from "next/navigation";
+import PostFeed from "./PostFeed";
+
+export default function PostFeedClient() {
+  const router = useRouter();
+
+  const handlePost = () => {
+    router.push("/new_post");
+  };
 
   return (
     <div>
-      <PostFeedClient posts={posts} />
+      <button
+        onClick={handlePost}
+        className="bg-blue-500 text-white px-4 py-2 rounded mb-4"
+      >
+        Rate Something
+      </button>
+      <PostFeed/>
     </div>
   );
 }
