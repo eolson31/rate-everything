@@ -10,7 +10,6 @@ export default function Login() {
   const [inputUsername, setInputUsername] = useState("");
 
   const handleLogin = () => {
-    // Optional: simulate login logic here
     setUsername(inputUsername);
     router.push("/home");
   };
