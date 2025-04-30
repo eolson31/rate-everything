@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { create_post_in_database, delete_post_in_database, get_all_posts_from_database } from "@/app/queries";
-import { broadcast } from "../event_stream/route";
+import { broadcast } from "../event_stream/server_side_events";
 
 export async function GET(request: Request) {
     const posts = await get_all_posts_from_database();

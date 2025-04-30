@@ -1,13 +1,4 @@
-import { NextResponse } from "next/server";
-import { json } from "stream/consumers";
-
-// Server Side Event
-type SSEClient = {
-    send: (data: string) => void;
-    close: () => void;
-}
-
-let clients: SSEClient[] = [];
+import { Client, clients } from "./server_side_events";
 
 export function GET(request: Request) {
     const stream = new ReadableStream({
@@ -18,7 +9,7 @@ export function GET(request: Request) {
             };
 
             // Register client when it connects
-            const client: SSEClient = {
+            const client: Client = {
                 send,
                 close: () => controller.close()
             }
@@ -29,7 +20,8 @@ export function GET(request: Request) {
 
             // Remove client when it disconnects
             request.signal.addEventListener('abort', () => {
-                clients = clients.filter((client) => client.send !== send);
+                const index = clients.indexOf(client);
+                clients.splice(index, 1);
                 controller.close()
             });
         },
@@ -42,16 +34,4 @@ export function GET(request: Request) {
             'Connection': 'keep-alive',
         },
     });
-}
-
-// Update all clients
-export function broadcast(data: any) {
-    const message = JSON.stringify(data);
-    for (const client of clients) {
-        try {
-            client.send(message);
-        } catch (error) {
-            console.error("Failed to send message to client", error);
-        }
-    }
 }
