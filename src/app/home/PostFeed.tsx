@@ -33,10 +33,38 @@ export default function PostFeed() {
     fetchPosts();
   }, []);
 
+  // Listen for events from the server
+  useEffect(() => {
+    const eventSource = new EventSource("/api/event_stream");
+    // When a message is recieved
+    eventSource.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      console.log(data);
+      if (data.type === "newPost") {
+        // Convert string date to Date object
+        data.post.createdAt = new Date(data.post.createdAt);
+        setPosts((previous) => [...previous, data.post]);
+      } else if (data.type === "deletePost") {
+        setPosts(previous => previous.filter(post => post.id !== data.postID));
+      }
+    };
+
+    // Handle errors
+    eventSource.onerror = (error) => {
+      console.error("SSE error:", error);
+      eventSource.close();
+    }
+
+    // Close connection
+    return () => {
+      eventSource.close();
+    };
+  }, []);  
+
   // Delete post
   const deletePost = async (postID: number) => {
     console.log("Deleting post with id", postID);
-    const result = await fetch("/api/user", {
+    const result = await fetch("/api/posts", {
       method: "DELETE",
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify({

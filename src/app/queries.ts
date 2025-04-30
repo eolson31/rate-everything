@@ -39,8 +39,15 @@ export async function create_post_in_database(userID: number, title: string, des
             rating,
             author: {
                 connect: {id: userID},
-            }
-        }
+            },
+        },
+        include: {
+            author: {
+                select: {
+                    name: true,
+                },
+            },
+        },
     })
 }
 
