@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 type Post = {
@@ -60,6 +61,12 @@ function StarRatingButton({ rating, onChange }: StarRatingButtonProps) {
 export default function PostFeed() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [postRatings, setPostRatings] = useState<{ [postId: number]: number }>({});
+
+  const router = useRouter();
+  
+    const handlePost = () => {
+      router.push("/new_post");
+    };
 
   // Fetch posts from the database
   const fetchPosts = async () => {
@@ -130,30 +137,51 @@ export default function PostFeed() {
   };
 
   return (
-    <div>
+    <main className="flex flex-col items-center p-6 space-y-6">
+      <button 
+      onClick={handlePost}
+      className="mb-4 px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-full shadow">
+        Rate Something
+      </button>
       {posts.map((post) => (
-        <div key={`post-container-${post.id}`} style={{ border: "1px solid black", display: "flex", flexDirection: "row", width: "50%" }}>
-          <div>
-            <p key={`title-${post.id}`} style={{ fontSize: "40px" }}>{post.title}</p>
-            <p key={`description-${post.id}`} style={{ fontSize: "24px" }}>{post.description}</p>
-            <p key={`author-${post.id}`}>By: {post.author.name}</p>
-            <p key={`timestamp-${post.id}`}>Posted on: {post.createdAt.toLocaleDateString()} at {post.createdAt.toLocaleTimeString()}</p>
-            <div key={`rating-${post.id}`}>
-              <StarRatingButton
-                rating={postRatings[post.id] ?? post.rating}  // Display the rating for each post
-                onChange={(newRating) => {
-                  setPostRatings((prev) => ({ ...prev, [post.id]: newRating }));
-                  // Optional: persist rating update to server here
-                  console.log(`Updated rating for post ${post.id}: ${newRating}`);
-                }}
-              />
+        <div
+          key={`post-container-${post.id}`}
+          className="w-full max-w-2xl bg-white border border-gray-200 rounded-2xl shadow-md p-6 flex flex-col space-y-4"
+        >
+          <div className="flex justify-between items-start">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">{post.title}</h2>
+              <p className="text-lg text-gray-700">{post.description}</p>
+              <p className="text-sm text-gray-500 mt-2">
+                By: <span className="font-medium">{post.author.name}</span>
+              </p>
+              <p className="text-sm text-gray-400">
+                Posted on {post.createdAt.toLocaleDateString()} at{" "}
+                {post.createdAt.toLocaleTimeString()}
+              </p>
             </div>
+            <button
+              id={`delete-${post.id}`}
+              onClick={() => deletePost(post.id)}
+              className="text-gray-400 hover:text-red-500 transition"
+              title="Delete Post"
+            >
+              🗑️
+            </button>
           </div>
-          <div style={{ marginLeft: "auto" }}>
-            <button id={`delete-${post.id}`} onClick={() => deletePost(post.id)}>🗑️</button>
+  
+          <div key={`rating-${post.id}`} className="pt-2">
+            <StarRatingButton
+              rating={postRatings[post.id] ?? post.rating}
+              onChange={(newRating) => {
+                setPostRatings((prev) => ({ ...prev, [post.id]: newRating }));
+                console.log(`Updated rating for post ${post.id}: ${newRating}`);
+              }}
+            />
           </div>
         </div>
       ))}
-    </div>
+    </main>
   );
+  
 }
