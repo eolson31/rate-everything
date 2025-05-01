@@ -13,8 +13,53 @@ type Post = {
   };
 }
 
+type StarRatingButtonProps = {
+  rating: number;
+  onChange: (newRating: number) => void;
+};
+
+function StarRatingButton({ rating, onChange }: StarRatingButtonProps) {
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement>, starIndex: number) => {
+    const { left, width } = e.currentTarget.getBoundingClientRect();
+    const clickX = e.clientX - left;
+    const clickedHalf = clickX < width / 2;
+    const newRating = clickedHalf ? starIndex - 0.5 : starIndex;
+    onChange(newRating);
+  };
+
+  return (
+    <div className="flex items-center space-x-1">
+      {[1, 2, 3, 4, 5].map((star) => {
+        let starChar = "★";
+        let starColor = "text-gray-300";
+
+        if (rating >= star) {
+          starColor = "text-yellow-400";
+        } else if (rating >= star - 0.5) {
+          starChar = "⯨"; // fallback half-star
+          starColor = "text-yellow-400";
+        }
+
+        return (
+          <button
+            key={star}
+            type="button"
+            onClick={(e) => handleClick(e, star)}
+            className={`text-2xl ${starColor} cursor-pointer focus:outline-none`}
+          >
+            {starChar}
+          </button>
+        );
+      })}
+      <span className="ml-2 text-sm text-gray-600">{rating.toFixed(1)}/5</span>
+    </div>
+  );
+}
+
 export default function PostFeed() {
   const [posts, setPosts] = useState<Post[]>([]);
+  const [postRatings, setPostRatings] = useState<{ [postId: number]: number }>({});
+
 
   // Fetch posts from database
   const fetchPosts = async () => {
@@ -26,6 +71,7 @@ export default function PostFeed() {
       createdAt: new Date(post.createdAt),
     }))
     setPosts(postsWithParsedDates);
+    setPostRatings(Object.fromEntries(postsWithParsedDates.map((p: { id: any; rating: any; }) => [p.id, p.rating])));
   }
 
   // Fetch posts on launch
@@ -36,44 +82,49 @@ export default function PostFeed() {
   // Listen for events from the server
   useEffect(() => {
     const eventSource = new EventSource("/api/event_stream");
-    // When a message is recieved
+
     eventSource.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      console.log(data);
+
       if (data.type === "newPost") {
-        // Convert string date to Date object
         data.post.createdAt = new Date(data.post.createdAt);
         setPosts((previous) => [...previous, data.post]);
+        setPostRatings((prev) => ({ ...prev, [data.post.id]: data.post.rating }));
       } else if (data.type === "deletePost") {
-        setPosts(previous => previous.filter(post => post.id !== data.postID));
+        setPosts((previous) => previous.filter((post) => post.id !== data.postID));
+        setPostRatings((prev) => {
+          const updated = { ...prev };
+          delete updated[data.postID];
+          return updated;
+        });
       }
     };
 
-    // Handle errors
     eventSource.onerror = (error) => {
       console.error("SSE error:", error);
       eventSource.close();
-    }
+    };
 
-    // Close connection
     return () => {
       eventSource.close();
     };
-  }, []);  
+  }, []);
 
   // Delete post
   const deletePost = async (postID: number) => {
-    console.log("Deleting post with id", postID);
     const result = await fetch("/api/posts", {
       method: "DELETE",
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({
-        postID,
-      }),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ postID }),
     });
+
     if (result.ok) {
-      // Delete post from the local list as to not make unnecessary database calls
-      setPosts(previous => previous.filter(post => post.id !== postID));
+      setPosts((previous) => previous.filter((post) => post.id !== postID));
+      setPostRatings((prev) => {
+        const updated = { ...prev };
+        delete updated[postID];
+        return updated;
+      });
     } else {
       console.error("Failed to delete post", postID);
     }
@@ -88,7 +139,16 @@ export default function PostFeed() {
                 <p key={`description-${post.id}`} style={{fontSize: "24px"}}>{`${post.description}`}</p>
                 <p key={`author-${post.id}`}>{`By: ${post.author.name}`}</p>
                 <p key={`timestamp-${post.id}`}>{`Posted on: ${post.createdAt.toLocaleDateString()} at ${post.createdAt.toLocaleTimeString()}`}</p>
-                <p key={`rating-${post.id}`}>{`Rating: ${post.rating}/5`}</p>
+                <div key={`rating-${post.id}`}>
+                <StarRatingButton
+                  rating={postRatings[post.id] ?? post.rating}
+                  onChange={(newRating) => {
+                    setPostRatings((prev) => ({ ...prev, [post.id]: newRating }));
+                    // Optional: persist rating update to server here
+                    console.log(`Updated rating for post ${post.id}: ${newRating}`);
+                  }}
+                />
+                </div>
               </div>
               <div style={{marginLeft: "auto"}}>
                 <button id={`delete-${post.id}`} onClick={() => deletePost(post.id)}>🗑️</button>
