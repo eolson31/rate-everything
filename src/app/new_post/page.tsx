@@ -104,19 +104,37 @@ export default function newPost() {
         {/* Star Rating */}
         <div className="flex flex-col">
           <span className="mb-2 font-semibold text-gray-700">Your rating:</span>
-          <div className="flex space-x-2">
-            {[1, 2, 3, 4, 5].map((star) => (
-              <button
-                key={star}
-                type="button"
-                onClick={() => setRating(star)}
-                className={`text-3xl ${
-                  star <= rating ? "text-yellow-400" : "text-gray-300"
-                }`}
-              >
-                ★
-              </button>
-            ))}
+          <div className="flex items-center space-x-1">
+            {[1, 2, 3, 4, 5].map((star) => {
+              const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+                const { left, width } = e.currentTarget.getBoundingClientRect();
+                const clickX = e.clientX - left;
+                const clickedHalf = clickX < width / 2;
+                const newRating = clickedHalf ? star - 0.5 : star;
+                setRating(newRating);
+              };
+
+              let starChar = "★";
+              let starColor = "text-gray-300";
+              if (rating >= star) {
+                starColor = "text-yellow-400"; // full star
+              } else if (rating >= star - 0.5) {
+                starChar = "⯨"; // visual fallback for half
+                starColor = "text-yellow-400";
+              }
+
+              return (
+                <button
+                  key={star}
+                  type="button"
+                  onClick={handleClick}
+                  className={`text-3xl ${starColor} cursor-pointer focus:outline-none`}
+                >
+                  {starChar}
+                </button>
+              );
+            })}
+            <span className="ml-2 text-sm text-gray-600">{rating.toFixed(1)}/5</span>
           </div>
         </div>
 

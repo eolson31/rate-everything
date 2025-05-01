@@ -11,7 +11,7 @@ type Post = {
   author: {
     name: string;
   };
-}
+};
 
 type StarRatingButtonProps = {
   rating: number;
@@ -30,14 +30,15 @@ function StarRatingButton({ rating, onChange }: StarRatingButtonProps) {
   return (
     <div className="flex items-center space-x-1">
       {[1, 2, 3, 4, 5].map((star) => {
-        let starChar = "★";
-        let starColor = "text-gray-300";
+        let starChar = "★";  // Full star
+        let starColor = "text-gray-300";  // Empty star color
 
+        // Determine if it's a full or half-star or empty
         if (rating >= star) {
-          starColor = "text-yellow-400";
+          starColor = "text-yellow-400";  // Full star color
         } else if (rating >= star - 0.5) {
-          starChar = "⯨"; // fallback half-star
-          starColor = "text-yellow-400";
+          starChar = "⯨";  // Half star
+          starColor = "text-yellow-400";  // Half star color
         }
 
         return (
@@ -60,8 +61,7 @@ export default function PostFeed() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [postRatings, setPostRatings] = useState<{ [postId: number]: number }>({});
 
-
-  // Fetch posts from database
+  // Fetch posts from the database
   const fetchPosts = async () => {
     const results = await fetch("/api/posts");
     const data = await results.json();
@@ -69,17 +69,16 @@ export default function PostFeed() {
     const postsWithParsedDates = data.posts.map((post: Post) => ({
       ...post,
       createdAt: new Date(post.createdAt),
-    }))
+    }));
     setPosts(postsWithParsedDates);
     setPostRatings(Object.fromEntries(postsWithParsedDates.map((p: { id: any; rating: any; }) => [p.id, p.rating])));
-  }
+  };
 
-  // Fetch posts on launch
   useEffect(() => {
     fetchPosts();
   }, []);
 
-  // Listen for events from the server
+  // Listen for events from the server (e.g., new posts, deleted posts)
   useEffect(() => {
     const eventSource = new EventSource("/api/event_stream");
 
@@ -132,29 +131,29 @@ export default function PostFeed() {
 
   return (
     <div>
-        {posts.map((post) => (
-            <div key={`post-container-${post.id}`} style={{border: "1px solid black", display: "flex", flexDirection: "row", width: "50%"}}>
-              <div>
-                <p key={`title-${post.id}`} style={{fontSize: "40px"}}>{post.title}</p>
-                <p key={`description-${post.id}`} style={{fontSize: "24px"}}>{`${post.description}`}</p>
-                <p key={`author-${post.id}`}>{`By: ${post.author.name}`}</p>
-                <p key={`timestamp-${post.id}`}>{`Posted on: ${post.createdAt.toLocaleDateString()} at ${post.createdAt.toLocaleTimeString()}`}</p>
-                <div key={`rating-${post.id}`}>
-                <StarRatingButton
-                  rating={postRatings[post.id] ?? post.rating}
-                  onChange={(newRating) => {
-                    setPostRatings((prev) => ({ ...prev, [post.id]: newRating }));
-                    // Optional: persist rating update to server here
-                    console.log(`Updated rating for post ${post.id}: ${newRating}`);
-                  }}
-                />
-                </div>
-              </div>
-              <div style={{marginLeft: "auto"}}>
-                <button id={`delete-${post.id}`} onClick={() => deletePost(post.id)}>🗑️</button>
-              </div>
+      {posts.map((post) => (
+        <div key={`post-container-${post.id}`} style={{ border: "1px solid black", display: "flex", flexDirection: "row", width: "50%" }}>
+          <div>
+            <p key={`title-${post.id}`} style={{ fontSize: "40px" }}>{post.title}</p>
+            <p key={`description-${post.id}`} style={{ fontSize: "24px" }}>{post.description}</p>
+            <p key={`author-${post.id}`}>By: {post.author.name}</p>
+            <p key={`timestamp-${post.id}`}>Posted on: {post.createdAt.toLocaleDateString()} at {post.createdAt.toLocaleTimeString()}</p>
+            <div key={`rating-${post.id}`}>
+              <StarRatingButton
+                rating={postRatings[post.id] ?? post.rating}  // Display the rating for each post
+                onChange={(newRating) => {
+                  setPostRatings((prev) => ({ ...prev, [post.id]: newRating }));
+                  // Optional: persist rating update to server here
+                  console.log(`Updated rating for post ${post.id}: ${newRating}`);
+                }}
+              />
             </div>
-        ))}
+          </div>
+          <div style={{ marginLeft: "auto" }}>
+            <button id={`delete-${post.id}`} onClick={() => deletePost(post.id)}>🗑️</button>
+          </div>
+        </div>
+      ))}
     </div>
-  ); 
+  );
 }
