@@ -15,22 +15,32 @@ export default function Login() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen">
-      <h1 className="text-2xl mb-4">Login</h1>
-      <input
-        className="inputUserPass"
-        id="username"
-        placeholder="Username"
-        value={inputUsername}
-        onChange={(e) => setInputUsername(e.target.value)}
-      />
-      <input className="inputUserPass" id="password" placeholder="Password" type="password" />
-      <button 
-        onClick={handleLogin}
-        className="bg-blue-500 text-white px-4 py-2 rounded"
-      >
-        Log In
-      </button>
+    <div className="flex items-center justify-center min-h-screen bg-gray-100 px-4">
+      <div className="w-full max-w-sm bg-white p-8 rounded-2xl shadow-md">
+        <h1 className="text-3xl font-bold text-center text-gray-800 mb-6">Welcome Back</h1>
+        <div className="space-y-4">
+          <input
+            id="username"
+            type="text"
+            placeholder="Username"
+            value={inputUsername}
+            onChange={(e) => setInputUsername(e.target.value)}
+            className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <input
+            id="password"
+            type="password"
+            placeholder="Password"
+            className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <button
+            onClick={handleLogin}
+            className="w-full bg-blue-600 text-white py-2 rounded-xl font-semibold hover:bg-blue-700 transition"
+          >
+            Log In
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
