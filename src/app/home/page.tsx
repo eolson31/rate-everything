@@ -15,13 +15,6 @@ export default function PostFeedClient() {
 
   return (
     <div>
-      <button
-        onClick={handlePost}
-        className="bg-blue-500 text-white px-4 py-2 rounded mb-4"
-      >
-        Rate Something
-      </button>
-      <div/>
       <input
         // onKeyUp={console.log("typing")}
         placeholder="Search"
