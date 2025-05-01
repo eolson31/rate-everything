@@ -8,6 +8,7 @@
 3. Open a new terminal and navigate to the project's directory.
 4. Install dependencies by running `npm install`.
 5. Run the development server using `npm run dev`.
+6. Open up http://localhost:3000 in order to see the website.
 
 
 
