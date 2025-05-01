@@ -2,6 +2,10 @@
 
 import { useEffect, useState } from "react";
 
+type Props = {
+  searchQuery: string;
+};
+
 type Post = {
   id: number;
   title: string;
@@ -57,7 +61,7 @@ function StarRatingButton({ rating, onChange }: StarRatingButtonProps) {
   );
 }
 
-export default function PostFeed() {
+export default function PostFeed({ searchQuery }: Props) {
   const [posts, setPosts] = useState<Post[]>([]);
   const [postRatings, setPostRatings] = useState<{ [postId: number]: number }>({});
 
@@ -129,9 +133,15 @@ export default function PostFeed() {
     }
   };
 
+  const filteredPosts = posts.filter((post) =>
+    post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    post.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    post.author.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <div>
-      {posts.map((post) => (
+      {filteredPosts.map((post) => (
         <div key={`post-container-${post.id}`} style={{ border: "1px solid black", display: "flex", flexDirection: "row", width: "50%" }}>
           <div>
             <p key={`title-${post.id}`} style={{ fontSize: "40px" }}>{post.title}</p>
