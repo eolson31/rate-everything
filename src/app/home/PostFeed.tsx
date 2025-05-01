@@ -3,10 +3,6 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-type Props = {
-  searchQuery: string;
-};
-
 type Post = {
   id: number;
   title: string;
@@ -62,10 +58,11 @@ function StarRatingButton({ rating, onChange }: StarRatingButtonProps) {
   );
 }
 
-export default function PostFeed({ searchQuery }: Props) {
+export default function PostFeed() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [postRatings, setPostRatings] = useState<{ [postId: number]: number }>({});
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
 
   const router = useRouter();
   
@@ -143,13 +140,21 @@ export default function PostFeed({ searchQuery }: Props) {
   };
 
   const filteredPosts = posts.filter((post) =>
-    post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    post.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    post.author.name.toLowerCase().includes(searchQuery.toLowerCase())
+    post.title.toLowerCase().includes(search.toLowerCase()) ||
+    post.description.toLowerCase().includes(search.toLowerCase()) ||
+    post.author.name.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
     <main className="flex flex-col items-center p-6 space-y-6">
+
+      <input
+        // onKeyUp={console.log("typing")}
+        placeholder="Search"
+        onChange={(e) => setSearch(e.target.value)}
+        className="mb-4 px-2 py-1 border rounded"
+      />
+
       <button 
         onClick={handlePost}
         className="mb-4 px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-full shadow"

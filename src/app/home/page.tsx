@@ -15,13 +15,7 @@ export default function PostFeedClient() {
 
   return (
     <div>
-      <input
-        // onKeyUp={console.log("typing")}
-        placeholder="Search"
-        onChange={(e) => setSearch(e.target.value)}
-        className="mb-4 px-2 py-1 border rounded"
-      />
-      <PostFeed searchQuery={search}/>
+      <PostFeed/>
     </div>
   );
 }
