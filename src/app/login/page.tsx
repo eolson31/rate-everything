@@ -27,7 +27,7 @@ export default function Login() {
       <input className="inputUserPass" id="password" placeholder="Password" type="password" />
       <button 
         onClick={handleLogin}
-        className="bg-blue-500 text-white px-4 py-2 rounded"
+        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
       >
         Log In
       </button>

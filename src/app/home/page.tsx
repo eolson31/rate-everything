@@ -15,7 +15,7 @@ export default function PostFeedClient() {
     <div>
       <button
         onClick={handlePost}
-        className="bg-blue-500 text-white px-4 py-2 rounded mb-4"
+        className="bg-blue-500 text-white px-4 py-2 rounded mb-4 hover:bg-blue-600"
       >
         Rate Something
       </button>
