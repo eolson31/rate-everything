@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 type Post = {
@@ -60,19 +61,28 @@ function StarRatingButton({ rating, onChange }: StarRatingButtonProps) {
 export default function PostFeed() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [postRatings, setPostRatings] = useState<{ [postId: number]: number }>({});
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+
+  const router = useRouter();
+  
+    const handlePost = () => {
+      router.push("/new_post");
+    };
 
   // Fetch posts from the database
   const fetchPosts = async () => {
+    setLoading(true);
     const results = await fetch("/api/posts");
     const data = await results.json();
-    // Map stringified date to Date object
     const postsWithParsedDates = data.posts.map((post: Post) => ({
       ...post,
       createdAt: new Date(post.createdAt),
     }));
     setPosts(postsWithParsedDates);
-    setPostRatings(Object.fromEntries(postsWithParsedDates.map((p: { id: any; rating: any; }) => [p.id, p.rating])));
-  };
+    setPostRatings(Object.fromEntries(postsWithParsedDates.map((p: {id: any; rating: any}) => [p.id, p.rating])));
+    setLoading(false);
+  };  
 
   useEffect(() => {
     fetchPosts();
@@ -129,31 +139,85 @@ export default function PostFeed() {
     }
   };
 
+  const filteredPosts = posts.filter((post) =>
+    post.title.toLowerCase().includes(search.toLowerCase()) ||
+    post.description.toLowerCase().includes(search.toLowerCase()) ||
+    post.author.name.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
-    <div>
-      {posts.map((post) => (
-        <div key={`post-container-${post.id}`} style={{ border: "1px solid black", display: "flex", flexDirection: "row", width: "50%" }}>
-          <div>
-            <p key={`title-${post.id}`} style={{ fontSize: "40px" }}>{post.title}</p>
-            <p key={`description-${post.id}`} style={{ fontSize: "24px" }}>{post.description}</p>
-            <p key={`author-${post.id}`}>By: {post.author.name}</p>
-            <p key={`timestamp-${post.id}`}>Posted on: {post.createdAt.toLocaleDateString()} at {post.createdAt.toLocaleTimeString()}</p>
-            <div key={`rating-${post.id}`}>
+    <main className="flex flex-col items-center p-6 space-y-6">
+
+      <input
+        // onKeyUp={console.log("typing")}
+        placeholder="Search"
+        onChange={(e) => setSearch(e.target.value)}
+        className="mb-4 px-2 py-1 border rounded"
+      />
+
+      <button 
+        onClick={handlePost}
+        className="mb-4 px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-full shadow"
+      >
+        Rate Something
+      </button>
+  
+      {loading ? (
+        // Skeleton loading cards (3 placeholders)
+        Array.from({ length: 3 }).map((_, i) => (
+          <div
+            key={`skeleton-${i}`}
+            className="w-full max-w-2xl bg-white border border-gray-200 rounded-2xl shadow-md p-6 space-y-4 animate-pulse"
+          >
+            <div className="h-6 bg-gray-300 rounded w-1/2" />
+            <div className="h-4 bg-gray-300 rounded w-3/4" />
+            <div className="h-4 bg-gray-200 rounded w-1/4" />
+            <div className="h-4 bg-gray-200 rounded w-1/3" />
+            <div className="h-8 bg-gray-300 rounded w-full mt-4" />
+          </div>
+        ))
+      ) : (
+        filteredPosts.map((post) => (
+          <div
+            key={`post-container-${post.id}`}
+            className="w-full max-w-2xl bg-white border border-gray-200 rounded-2xl shadow-md p-6 flex flex-col space-y-4"
+          >
+            <div className="flex justify-between items-start">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">{post.title}</h2>
+                <p className="text-lg text-gray-700">{post.description}</p>
+                <p className="text-sm text-gray-500 mt-2">
+                  By: <span className="font-medium">{post.author.name}</span>
+                </p>
+                <p className="text-sm text-gray-400">
+                  Posted on {post.createdAt.toLocaleDateString()} at{" "}
+                  {post.createdAt.toLocaleTimeString()}
+                </p>
+              </div>
+              <button
+                id={`delete-${post.id}`}
+                onClick={() => deletePost(post.id)}
+                className="text-gray-400 hover:text-red-500 transition"
+                title="Delete Post"
+              >
+                🗑️
+              </button>
+            </div>
+  
+            <div key={`rating-${post.id}`} className="pt-2">
               <StarRatingButton
-                rating={postRatings[post.id] ?? post.rating}  // Display the rating for each post
+                rating={postRatings[post.id] ?? post.rating}
                 onChange={(newRating) => {
                   setPostRatings((prev) => ({ ...prev, [post.id]: newRating }));
-                  // Optional: persist rating update to server here
                   console.log(`Updated rating for post ${post.id}: ${newRating}`);
                 }}
               />
             </div>
           </div>
-          <div style={{ marginLeft: "auto" }}>
-            <button id={`delete-${post.id}`} onClick={() => deletePost(post.id)}>🗑️</button>
-          </div>
-        </div>
-      ))}
-    </div>
+        ))
+      )}
+    </main>
   );
+  
+  
 }
