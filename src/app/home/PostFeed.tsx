@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
+
 type Post = {
   id: number;
   title: string;
@@ -12,6 +13,7 @@ type Post = {
   author: {
     name: string;
   };
+  votes: number;
 };
 
 type StarRatingButtonProps = {
@@ -26,6 +28,13 @@ function StarRatingButton({ rating, onChange }: StarRatingButtonProps) {
     const clickedHalf = clickX < width / 2;
     const newRating = clickedHalf ? starIndex - 0.5 : starIndex;
     onChange(newRating);
+  };
+  const [count, setCount] = useState(0);
+  const [voted, setVoted] = useState(false);
+
+  const handleVoteClick = () => {
+    setCount((prev) => (voted ? prev - 1 : prev + 1));
+    setVoted(!voted);
   };
 
   return (
@@ -54,6 +63,14 @@ function StarRatingButton({ rating, onChange }: StarRatingButtonProps) {
         );
       })}
       <span className="ml-2 text-sm text-gray-600">{rating.toFixed(1)}/5</span>
+      <button
+        onClick={handleVoteClick}
+        className={`flex items-center px-2 py-1 text-sm rounded-full border ${
+          voted ? "bg-blue-200 text-blue-800" : "bg-gray-100"
+        } hover:bg-blue-300`}
+      >
+        👍 {count}
+      </button>
     </div>
   );
 }
