@@ -31,3 +31,7 @@ body {
   padding: 3px 3px 3px 3px;
   border: solid;
 }
+
+.voteButton {
+  margin: 10px;
+}

@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
+
 type Post = {
   id: number;
   title: string;
@@ -12,6 +13,7 @@ type Post = {
   author: {
     name: string;
   };
+  votes: number;
 };
 
 type StarRatingButtonProps = {
@@ -26,6 +28,18 @@ function StarRatingButton({ rating, onChange }: StarRatingButtonProps) {
     const clickedHalf = clickX < width / 2;
     const newRating = clickedHalf ? starIndex - 0.5 : starIndex;
     onChange(newRating);
+  };
+  const [count, setCount] = useState(0);
+  const [votedup, setVotedUp] = useState(false);
+  const [voteddown, setVotedDown] = useState(false);
+
+  const handleUpVote = () => {
+    setCount((prev) => (votedup ? prev - 1 : prev + 1));
+    setVotedUp(!votedup);
+  };
+  const handleDownVote = () => {
+    setCount((prev) => (voteddown ? prev + 1 : prev - 1));
+    setVotedDown(!voteddown);
   };
 
   return (
@@ -54,6 +68,23 @@ function StarRatingButton({ rating, onChange }: StarRatingButtonProps) {
         );
       })}
       <span className="ml-2 text-sm text-gray-600">{rating.toFixed(1)}/5</span>
+      <button
+        onClick={handleUpVote}
+        className={`flex items-center px-2 py-1 text-sm rounded-full voteButton border ${
+          votedup ? "bg-blue-200 text-blue-800" : ""
+        } hover:bg-blue-300`}
+      >
+        👍
+      </button>
+      {count}
+      <button
+        onClick={handleDownVote}
+        className={`flex items-center px-2 py-1 voteButton text-sm rounded-full border ${
+          voteddown ? "bg-blue-200 text-blue-800" : ""
+        } hover:bg-blue-300`}
+      >
+        👎 
+      </button>
     </div>
   );
 }
