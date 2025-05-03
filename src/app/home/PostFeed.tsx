@@ -30,11 +30,16 @@ function StarRatingButton({ rating, onChange }: StarRatingButtonProps) {
     onChange(newRating);
   };
   const [count, setCount] = useState(0);
-  const [voted, setVoted] = useState(false);
+  const [votedup, setVotedUp] = useState(false);
+  const [voteddown, setVotedDown] = useState(false);
 
-  const handleVoteClick = () => {
-    setCount((prev) => (voted ? prev - 1 : prev + 1));
-    setVoted(!voted);
+  const handleUpVote = () => {
+    setCount((prev) => (votedup ? prev - 1 : prev + 1));
+    setVotedUp(!votedup);
+  };
+  const handleDownVote = () => {
+    setCount((prev) => (voteddown ? prev + 1 : prev - 1));
+    setVotedDown(!voteddown);
   };
 
   return (
@@ -64,12 +69,21 @@ function StarRatingButton({ rating, onChange }: StarRatingButtonProps) {
       })}
       <span className="ml-2 text-sm text-gray-600">{rating.toFixed(1)}/5</span>
       <button
-        onClick={handleVoteClick}
-        className={`flex items-center px-2 py-1 text-sm rounded-full border ${
-          voted ? "bg-blue-200 text-blue-800" : "bg-gray-100"
+        onClick={handleUpVote}
+        className={`flex items-center px-2 py-1 text-sm rounded-full voteButton border ${
+          votedup ? "bg-blue-200 text-blue-800" : ""
         } hover:bg-blue-300`}
       >
-        👍 {count}
+        👍
+      </button>
+      {count}
+      <button
+        onClick={handleDownVote}
+        className={`flex items-center px-2 py-1 voteButton text-sm rounded-full border ${
+          voteddown ? "bg-blue-200 text-blue-800" : ""
+        } hover:bg-blue-300`}
+      >
+        👎 
       </button>
     </div>
   );
