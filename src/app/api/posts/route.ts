@@ -11,7 +11,7 @@ export async function POST(request: Request) {
     const body = await request.json();
     const {authorID, title, description, rating} = body;
     // Explicit error handling
-    if (!authorID || !title || !description || !rating) {
+    if (!authorID || !title) {
         return NextResponse.json({success: false, error: "Missing a required field: authorID, title, description, and rating"}, {status: 404});
     }
     // Create in database
