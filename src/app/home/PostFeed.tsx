@@ -32,14 +32,34 @@ function StarRatingButton({ rating, onChange }: StarRatingButtonProps) {
   const [count, setCount] = useState(0);
   const [votedup, setVotedUp] = useState(false);
   const [voteddown, setVotedDown] = useState(false);
+  const [userVote, setUserVote] = useState(0);
 
   const handleUpVote = () => {
-    setCount((prev) => (votedup ? prev - 1 : prev + 1));
-    setVotedUp(!votedup);
+    if (votedup) {
+      setCount(count - 1);
+      setUserVote(0);
+      setVotedUp(false);
+    } else {
+      const adjustment = voteddown ? 2 : 1;
+      setCount(count + adjustment);
+      setUserVote(1);
+      setVotedUp(true);
+      setVotedDown(false);
+    }
   };
+
   const handleDownVote = () => {
-    setCount((prev) => (voteddown ? prev + 1 : prev - 1));
-    setVotedDown(!voteddown);
+    if (voteddown) {
+      setCount(count + 1);
+      setUserVote(0);
+      setVotedDown(false);
+    } else {
+      const adjustment = votedup ? 2 : 1;
+      setCount(count - adjustment);
+      setUserVote(-1);
+      setVotedDown(true);
+      setVotedUp(false);
+    }
   };
 
   return (
