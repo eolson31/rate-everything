@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useLoggedIn } from "../contexts";
 
 
 type Post = {
@@ -137,6 +138,7 @@ export default function PostFeed() {
   const [postRatings, setPostRatings] = useState<{ [postId: number]: number }>({});
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const { username } = useLoggedIn();
 
   const router = useRouter();
   
@@ -268,16 +270,17 @@ export default function PostFeed() {
                   {post.createdAt.toLocaleTimeString()}
                 </p>
               </div>
-              <button
-                id={`delete-${post.id}`}
-                onClick={() => deletePost(post.id)}
-                className="text-gray-400 hover:text-red-500 transition"
-                title="Delete Post"
-              >
-                🗑️
-              </button>
+              {post.author.name === username && (
+                <button
+                  id={`delete-${post.id}`}
+                  onClick={() => deletePost(post.id)}
+                  className="text-gray-400 hover:text-red-500 transition cursor-pointer"
+                  title="Delete Post"
+                >
+                  🗑️
+                </button>
+              )}
             </div>
-  
             <div key={`rating-${post.id}`} className="pt-2">
               <StarRatingButton
                 postId={post.id}
