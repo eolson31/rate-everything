@@ -19,9 +19,11 @@ type Post = {
 type StarRatingButtonProps = {
   rating: number;
   onChange: (newRating: number) => void;
+  postId: number;
+  initialCount: number;
 };
 
-function StarRatingButton({ rating, onChange }: StarRatingButtonProps) {
+function StarRatingButton({ rating, onChange, postId, initialCount }: StarRatingButtonProps) {
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>, starIndex: number) => {
     const { left, width } = e.currentTarget.getBoundingClientRect();
     const clickX = e.clientX - left;
@@ -29,22 +31,41 @@ function StarRatingButton({ rating, onChange }: StarRatingButtonProps) {
     const newRating = clickedHalf ? starIndex - 0.5 : starIndex;
     onChange(newRating);
   };
-  const [count, setCount] = useState(0);
+  const [count, setCount] = useState(initialCount);
   const [votedup, setVotedUp] = useState(false);
   const [voteddown, setVotedDown] = useState(false);
   const [userVote, setUserVote] = useState(0);
+
+  
+
+  const updateVote = async (delta: number) => {
+    const res = await fetch('/api/vote', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ postId, delta }),
+    });
+    const data = await res.json();
+    if (data.success) {
+      console.log("success");
+      setCount(data.count);  // Use updated vote count from server
+    } else {
+      console.error(data.error);
+    }
+  };
 
   const handleUpVote = () => {
     if (votedup) {
       setCount(count - 1);
       setUserVote(0);
       setVotedUp(false);
+      updateVote(-1);
     } else {
       const adjustment = voteddown ? 2 : 1;
       setCount(count + adjustment);
       setUserVote(1);
       setVotedUp(true);
       setVotedDown(false);
+      updateVote(adjustment);
     }
   };
 
@@ -53,12 +74,14 @@ function StarRatingButton({ rating, onChange }: StarRatingButtonProps) {
       setCount(count + 1);
       setUserVote(0);
       setVotedDown(false);
+      updateVote(1);
     } else {
       const adjustment = votedup ? 2 : 1;
       setCount(count - adjustment);
       setUserVote(-1);
       setVotedDown(true);
       setVotedUp(false);
+      updateVote(-adjustment);
     }
   };
 
@@ -257,10 +280,11 @@ export default function PostFeed() {
   
             <div key={`rating-${post.id}`} className="pt-2">
               <StarRatingButton
+                postId={post.id}
+                initialCount={0}
                 rating={postRatings[post.id] ?? post.rating}
                 onChange={(newRating) => {
                   setPostRatings((prev) => ({ ...prev, [post.id]: newRating }));
-                  console.log(`Updated rating for post ${post.id}: ${newRating}`);
                 }}
               />
             </div>

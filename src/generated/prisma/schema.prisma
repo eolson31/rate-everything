@@ -22,6 +22,7 @@ model Post {
   title       String
   description String
   rating      Int
+  voteCount   Int      @default(0)
 }
 
 model User {
