@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useLoggedIn } from "../contexts";
+import { get_all_posts_from_database } from "../queries";
 
 
 type Post = {
@@ -14,7 +15,8 @@ type Post = {
   author: {
     name: string;
   };
-  votes: number;
+  voteCount: number;
+  userVote: number;
 };
 
 type StarRatingButtonProps = {
@@ -22,9 +24,10 @@ type StarRatingButtonProps = {
   onChange: (newRating: number) => void;
   postId: number;
   initialCount: number;
+  initialUserVote: number;
 };
 
-function StarRatingButton({ rating, onChange, postId, initialCount }: StarRatingButtonProps) {
+function StarRatingButton({ rating, onChange, postId, initialCount, initialUserVote }: StarRatingButtonProps) {
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>, starIndex: number) => {
     const { left, width } = e.currentTarget.getBoundingClientRect();
     const clickX = e.clientX - left;
@@ -36,19 +39,35 @@ function StarRatingButton({ rating, onChange, postId, initialCount }: StarRating
   const [votedup, setVotedUp] = useState(false);
   const [voteddown, setVotedDown] = useState(false);
   const [userVote, setUserVote] = useState(0);
+  const [loading, setLoading] = useState(true);
 
+  useEffect(() => {
+    setCount(initialCount);
+    setUserVote(initialUserVote);
+    setVotedUp(initialUserVote === 1);
+    setVotedDown(initialUserVote === -1);
+    setLoading(false);
+  }, [initialCount, initialUserVote]);
   
 
   const updateVote = async (delta: number) => {
-    const res = await fetch('/api/vote', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ postId, delta }),
+    setLoading(true);
+
+    const res = await fetch("/api/vote", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        postId: postId,
+        delta: delta,
+      }),
     });
+  
     const data = await res.json();
     if (data.success) {
-      console.log("success");
-      setCount(data.count);  // Use updated vote count from server
+      setLoading(false);
+      setCount(data.count); 
     } else {
       console.error(data.error);
     }
@@ -100,7 +119,7 @@ function StarRatingButton({ rating, onChange, postId, initialCount }: StarRating
           starColor = "text-yellow-400";  // Half star color
         }
 
-        return (
+        return ( 
           <button
             key={star}
             type="button"
@@ -120,7 +139,7 @@ function StarRatingButton({ rating, onChange, postId, initialCount }: StarRating
       >
         👍
       </button>
-      {count}
+      <span className="px-2">{Number.isNaN(count) ? "..." : count}</span>
       <button
         onClick={handleDownVote}
         className={`flex items-center px-2 py-1 voteButton text-sm rounded-full border ${
@@ -146,7 +165,6 @@ export default function PostFeed() {
       router.push("/new_post");
     };
 
-  // Fetch posts from the database
   const fetchPosts = async () => {
     setLoading(true);
     const results = await fetch("/api/posts");
@@ -284,7 +302,8 @@ export default function PostFeed() {
             <div key={`rating-${post.id}`} className="pt-2">
               <StarRatingButton
                 postId={post.id}
-                initialCount={0}
+                initialCount={post.voteCount}
+                initialUserVote={post.userVote ?? 0}
                 rating={postRatings[post.id] ?? post.rating}
                 onChange={(newRating) => {
                   setPostRatings((prev) => ({ ...prev, [post.id]: newRating }));
@@ -296,6 +315,4 @@ export default function PostFeed() {
       )}
     </main>
   );
-  
-  
 }

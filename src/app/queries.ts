@@ -2,17 +2,34 @@
 
 import { prisma } from "@/lib/prisma";
 
-export async function get_all_posts_from_database() {
+export async function get_all_posts_from_database(/*currentUserId: number*/) {
     const posts = await prisma.post.findMany({
         include: {
             author: {
                 select: {
                     name: true,
                 },
-            },
+            }, votes: {
+                //where: { userId: currentUserId },
+                select: { isUpvote: true },
+                take: 1,
+            }
         },
     });
-    return posts;
+    return posts.map((p) => ({
+        id:          p.id,
+        title:       p.title,
+        description: p.description,
+        rating:      p.rating,
+        createdAt:   p.createdAt,
+        author:      p.author,
+        votes:       p.voteCount,
+        userVote:    p.votes.length
+                    ? p.votes[0].isUpvote
+                      ? 1
+                      : -1
+                    : 0,
+      }));
 }
 
 export async function get_user_in_database(username: string) {

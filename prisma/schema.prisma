@@ -5,29 +5,42 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-    provider = "prisma-client-js"
-    output   = "../src/generated/prisma"
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
-    provider = "postgresql"
-    url      = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model Post {
-    id          Int         @id @default(autoincrement())
-    createdAt   DateTime    @default(now())
-    authorId    Int
-    author      User        @relation(fields: [authorId], references: [id])
-    title       String
-    description String
-    rating      Int
-    voteCount   Int     @default(0)
-}   
+  id          Int      @id @default(autoincrement())
+  createdAt   DateTime @default(now())
+  authorId    Int
+  author      User     @relation(fields: [authorId], references: [id])
+  title       String
+  description String
+  rating      Int
+  voteCount   Int      @default(0)
+  votes       Vote[]
+}
 
 model User {
-    id          Int         @id @default(autoincrement())
-    createdAt   DateTime    @default(now())
-    name        String
-    posts       Post[]
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  name      String
+  posts     Post[]
+  votes     Vote[]
+}
+
+model Vote {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  postId    Int
+  isUpvote  Boolean
+  createdAt DateTime @default(now())
+  user User @relation(fields: [userId], references: [id])
+  post Post @relation(fields: [postId], references: [id])
+  @@unique([userId, postId])
 }

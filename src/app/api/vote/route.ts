@@ -1,28 +1,33 @@
-
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
-
+import { PrismaClient } from '@/generated/prisma';
 const prisma = new PrismaClient();
 
 export async function POST(req: NextRequest) {
-  const body = await req.json();
-  const { postId, delta } = body;
-
-  if (typeof postId !== "number" || typeof delta !== "number") {
-    return NextResponse.json({ success: false, error: "Invalid input" }, { status: 400 });
-  }
-
   try {
+    const body = await req.json();
+    console.log("Body received:", body);
+
+    const { postId, delta } = body;
+
+    if (typeof postId !== "number" || typeof delta !== "number") {
+      console.error("Invalid input types:", { postId, delta });
+      return NextResponse.json({ success: false, error: "Invalid input" }, { status: 400 });
+    }
+
     const updatedPost = await prisma.post.update({
       where: { id: postId },
       data: {
-        vote: { increment: delta },
+        voteCount: {
+          increment: delta,
+        },
       },
     });
 
-    return NextResponse.json({ success: true, count: updatedPost.votes });
-  } catch (error) {
-    console.error("Vote update error:", error);
-    return NextResponse.json({ success: false, error: "Database error" }, { status: 500 });
+    console.log("Post updated successfully:", updatedPost);
+
+    return NextResponse.json({ success: true, count: updatedPost.voteCount });
+  } catch (error: any) {
+    console.error("Error in /api/vote:", error.message || error);
+    return NextResponse.json({ success: false, error: "Internal Server Error" }, { status: 500 });
   }
 }
