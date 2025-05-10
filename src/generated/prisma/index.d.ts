@@ -241,8 +241,8 @@ export namespace Prisma {
   export import Exact = $Public.Exact
 
   /**
-   * Prisma Client JS version: 6.7.0
-   * Query Engine version: 3cff47a7f5d65c3ea74883f1d736e41d68ce91ed
+   * Prisma Client JS version: 6.6.0
+   * Query Engine version: f676762280b54cd07c770017ed3711ddde35f37a
    */
   export type PrismaVersion = {
     client: string
@@ -1137,14 +1137,12 @@ export namespace Prisma {
     id: number | null
     authorId: number | null
     rating: number | null
-    voteCount: number | null
   }
 
   export type PostSumAggregateOutputType = {
     id: number | null
     authorId: number | null
     rating: number | null
-    voteCount: number | null
   }
 
   export type PostMinAggregateOutputType = {
@@ -1154,7 +1152,6 @@ export namespace Prisma {
     title: string | null
     description: string | null
     rating: number | null
-    voteCount: number | null
   }
 
   export type PostMaxAggregateOutputType = {
@@ -1164,7 +1161,6 @@ export namespace Prisma {
     title: string | null
     description: string | null
     rating: number | null
-    voteCount: number | null
   }
 
   export type PostCountAggregateOutputType = {
@@ -1174,7 +1170,6 @@ export namespace Prisma {
     title: number
     description: number
     rating: number
-    voteCount: number
     _all: number
   }
 
@@ -1183,14 +1178,12 @@ export namespace Prisma {
     id?: true
     authorId?: true
     rating?: true
-    voteCount?: true
   }
 
   export type PostSumAggregateInputType = {
     id?: true
     authorId?: true
     rating?: true
-    voteCount?: true
   }
 
   export type PostMinAggregateInputType = {
@@ -1200,7 +1193,6 @@ export namespace Prisma {
     title?: true
     description?: true
     rating?: true
-    voteCount?: true
   }
 
   export type PostMaxAggregateInputType = {
@@ -1210,7 +1202,6 @@ export namespace Prisma {
     title?: true
     description?: true
     rating?: true
-    voteCount?: true
   }
 
   export type PostCountAggregateInputType = {
@@ -1220,7 +1211,6 @@ export namespace Prisma {
     title?: true
     description?: true
     rating?: true
-    voteCount?: true
     _all?: true
   }
 
@@ -1317,7 +1307,6 @@ export namespace Prisma {
     title: string
     description: string
     rating: number
-    voteCount: number
     _count: PostCountAggregateOutputType | null
     _avg: PostAvgAggregateOutputType | null
     _sum: PostSumAggregateOutputType | null
@@ -1346,7 +1335,6 @@ export namespace Prisma {
     title?: boolean
     description?: boolean
     rating?: boolean
-    voteCount?: boolean
     author?: boolean | UserDefaultArgs<ExtArgs>
     votes?: boolean | Post$votesArgs<ExtArgs>
     _count?: boolean | PostCountOutputTypeDefaultArgs<ExtArgs>
@@ -1359,7 +1347,6 @@ export namespace Prisma {
     title?: boolean
     description?: boolean
     rating?: boolean
-    voteCount?: boolean
     author?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["post"]>
 
@@ -1370,7 +1357,6 @@ export namespace Prisma {
     title?: boolean
     description?: boolean
     rating?: boolean
-    voteCount?: boolean
     author?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["post"]>
 
@@ -1381,10 +1367,9 @@ export namespace Prisma {
     title?: boolean
     description?: boolean
     rating?: boolean
-    voteCount?: boolean
   }
 
-  export type PostOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "createdAt" | "authorId" | "title" | "description" | "rating" | "voteCount", ExtArgs["result"]["post"]>
+  export type PostOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "createdAt" | "authorId" | "title" | "description" | "rating", ExtArgs["result"]["post"]>
   export type PostInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     author?: boolean | UserDefaultArgs<ExtArgs>
     votes?: boolean | Post$votesArgs<ExtArgs>
@@ -1410,7 +1395,6 @@ export namespace Prisma {
       title: string
       description: string
       rating: number
-      voteCount: number
     }, ExtArgs["result"]["post"]>
     composites: {}
   }
@@ -1842,7 +1826,6 @@ export namespace Prisma {
     readonly title: FieldRef<"Post", 'String'>
     readonly description: FieldRef<"Post", 'String'>
     readonly rating: FieldRef<"Post", 'Int'>
-    readonly voteCount: FieldRef<"Post", 'Int'>
   }
     
 
@@ -4515,8 +4498,7 @@ export namespace Prisma {
     authorId: 'authorId',
     title: 'title',
     description: 'description',
-    rating: 'rating',
-    voteCount: 'voteCount'
+    rating: 'rating'
   };
 
   export type PostScalarFieldEnum = (typeof PostScalarFieldEnum)[keyof typeof PostScalarFieldEnum]
@@ -4639,7 +4621,6 @@ export namespace Prisma {
     title?: StringFilter<"Post"> | string
     description?: StringFilter<"Post"> | string
     rating?: IntFilter<"Post"> | number
-    voteCount?: IntFilter<"Post"> | number
     author?: XOR<UserScalarRelationFilter, UserWhereInput>
     votes?: VoteListRelationFilter
   }
@@ -4651,7 +4632,6 @@ export namespace Prisma {
     title?: SortOrder
     description?: SortOrder
     rating?: SortOrder
-    voteCount?: SortOrder
     author?: UserOrderByWithRelationInput
     votes?: VoteOrderByRelationAggregateInput
   }
@@ -4666,7 +4646,6 @@ export namespace Prisma {
     title?: StringFilter<"Post"> | string
     description?: StringFilter<"Post"> | string
     rating?: IntFilter<"Post"> | number
-    voteCount?: IntFilter<"Post"> | number
     author?: XOR<UserScalarRelationFilter, UserWhereInput>
     votes?: VoteListRelationFilter
   }, "id">
@@ -4678,7 +4657,6 @@ export namespace Prisma {
     title?: SortOrder
     description?: SortOrder
     rating?: SortOrder
-    voteCount?: SortOrder
     _count?: PostCountOrderByAggregateInput
     _avg?: PostAvgOrderByAggregateInput
     _max?: PostMaxOrderByAggregateInput
@@ -4696,7 +4674,6 @@ export namespace Prisma {
     title?: StringWithAggregatesFilter<"Post"> | string
     description?: StringWithAggregatesFilter<"Post"> | string
     rating?: IntWithAggregatesFilter<"Post"> | number
-    voteCount?: IntWithAggregatesFilter<"Post"> | number
   }
 
   export type UserWhereInput = {
@@ -4815,7 +4792,6 @@ export namespace Prisma {
     title: string
     description: string
     rating: number
-    voteCount?: number
     author: UserCreateNestedOneWithoutPostsInput
     votes?: VoteCreateNestedManyWithoutPostInput
   }
@@ -4827,7 +4803,6 @@ export namespace Prisma {
     title: string
     description: string
     rating: number
-    voteCount?: number
     votes?: VoteUncheckedCreateNestedManyWithoutPostInput
   }
 
@@ -4836,7 +4811,6 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
     rating?: IntFieldUpdateOperationsInput | number
-    voteCount?: IntFieldUpdateOperationsInput | number
     author?: UserUpdateOneRequiredWithoutPostsNestedInput
     votes?: VoteUpdateManyWithoutPostNestedInput
   }
@@ -4848,7 +4822,6 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
     rating?: IntFieldUpdateOperationsInput | number
-    voteCount?: IntFieldUpdateOperationsInput | number
     votes?: VoteUncheckedUpdateManyWithoutPostNestedInput
   }
 
@@ -4859,7 +4832,6 @@ export namespace Prisma {
     title: string
     description: string
     rating: number
-    voteCount?: number
   }
 
   export type PostUpdateManyMutationInput = {
@@ -4867,7 +4839,6 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
     rating?: IntFieldUpdateOperationsInput | number
-    voteCount?: IntFieldUpdateOperationsInput | number
   }
 
   export type PostUncheckedUpdateManyInput = {
@@ -4877,7 +4848,6 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
     rating?: IntFieldUpdateOperationsInput | number
-    voteCount?: IntFieldUpdateOperationsInput | number
   }
 
   export type UserCreateInput = {
@@ -5037,14 +5007,12 @@ export namespace Prisma {
     title?: SortOrder
     description?: SortOrder
     rating?: SortOrder
-    voteCount?: SortOrder
   }
 
   export type PostAvgOrderByAggregateInput = {
     id?: SortOrder
     authorId?: SortOrder
     rating?: SortOrder
-    voteCount?: SortOrder
   }
 
   export type PostMaxOrderByAggregateInput = {
@@ -5054,7 +5022,6 @@ export namespace Prisma {
     title?: SortOrder
     description?: SortOrder
     rating?: SortOrder
-    voteCount?: SortOrder
   }
 
   export type PostMinOrderByAggregateInput = {
@@ -5064,14 +5031,12 @@ export namespace Prisma {
     title?: SortOrder
     description?: SortOrder
     rating?: SortOrder
-    voteCount?: SortOrder
   }
 
   export type PostSumOrderByAggregateInput = {
     id?: SortOrder
     authorId?: SortOrder
     rating?: SortOrder
-    voteCount?: SortOrder
   }
 
   export type IntWithAggregatesFilter<$PrismaModel = never> = {
@@ -5609,7 +5574,6 @@ export namespace Prisma {
     title: string
     description: string
     rating: number
-    voteCount?: number
     votes?: VoteCreateNestedManyWithoutPostInput
   }
 
@@ -5619,7 +5583,6 @@ export namespace Prisma {
     title: string
     description: string
     rating: number
-    voteCount?: number
     votes?: VoteUncheckedCreateNestedManyWithoutPostInput
   }
 
@@ -5682,7 +5645,6 @@ export namespace Prisma {
     title?: StringFilter<"Post"> | string
     description?: StringFilter<"Post"> | string
     rating?: IntFilter<"Post"> | number
-    voteCount?: IntFilter<"Post"> | number
   }
 
   export type VoteUpsertWithWhereUniqueWithoutUserInput = {
@@ -5724,7 +5686,6 @@ export namespace Prisma {
     title: string
     description: string
     rating: number
-    voteCount?: number
     author: UserCreateNestedOneWithoutPostsInput
   }
 
@@ -5735,7 +5696,6 @@ export namespace Prisma {
     title: string
     description: string
     rating: number
-    voteCount?: number
   }
 
   export type PostCreateOrConnectWithoutVotesInput = {
@@ -5783,7 +5743,6 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
     rating?: IntFieldUpdateOperationsInput | number
-    voteCount?: IntFieldUpdateOperationsInput | number
     author?: UserUpdateOneRequiredWithoutPostsNestedInput
   }
 
@@ -5794,7 +5753,6 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
     rating?: IntFieldUpdateOperationsInput | number
-    voteCount?: IntFieldUpdateOperationsInput | number
   }
 
   export type VoteCreateManyPostInput = {
@@ -5830,7 +5788,6 @@ export namespace Prisma {
     title: string
     description: string
     rating: number
-    voteCount?: number
   }
 
   export type VoteCreateManyUserInput = {
@@ -5845,7 +5802,6 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
     rating?: IntFieldUpdateOperationsInput | number
-    voteCount?: IntFieldUpdateOperationsInput | number
     votes?: VoteUpdateManyWithoutPostNestedInput
   }
 
@@ -5855,7 +5811,6 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
     rating?: IntFieldUpdateOperationsInput | number
-    voteCount?: IntFieldUpdateOperationsInput | number
     votes?: VoteUncheckedUpdateManyWithoutPostNestedInput
   }
 
@@ -5865,7 +5820,6 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
     rating?: IntFieldUpdateOperationsInput | number
-    voteCount?: IntFieldUpdateOperationsInput | number
   }
 
   export type VoteUpdateWithoutUserInput = {
