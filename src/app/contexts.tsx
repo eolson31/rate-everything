@@ -4,7 +4,7 @@ import { createContext, useContext, useState } from 'react';
 
 interface UserProfile {
   id: number,
-  username: string,
+  name: string,
 }
 
 interface LoggedInContextType {

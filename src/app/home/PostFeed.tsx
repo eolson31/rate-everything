@@ -73,7 +73,7 @@ export default function PostFeed() {
   const [search, setSearch] = useState("");
   const [userVotes, setUserVotes] = useState<Vote[]>([]);
   const { user } = useLoggedIn();
-
+  console.log(user)
   const router = useRouter();
   
     const handlePost = () => {
@@ -100,7 +100,6 @@ export default function PostFeed() {
   };  
   
   useEffect(() => {
-    setLoading(true);
     fetchPosts();
     setLoading(false);
     // Listen for events from the server (e.g., new posts, deleted posts)
@@ -160,11 +159,11 @@ export default function PostFeed() {
   );
 
   const is_post_upvoted = (post: Post) => {
-    return userVotes.find(vote => vote.postId === post.id)?.isUpvote;
+    return userVotes && userVotes.find(vote => vote.postId === post.id)?.isUpvote;
   }
 
   const is_post_downvoted = (post: Post) => {
-    const vote = userVotes.find(vote => vote.postId === post.id);
+    const vote = userVotes && userVotes.find(vote => vote.postId === post.id);
     return vote !== undefined && vote.isUpvote === false;
   }
 
@@ -264,7 +263,7 @@ export default function PostFeed() {
                   {post.createdAt.toLocaleTimeString()}
                 </p>
               </div>
-              {post.author.name === user?.username && (
+              {post.author.name === user?.name && (
                 <button
                   id={`delete-${post.id}`}
                   onClick={() => deletePost(post.id)}
