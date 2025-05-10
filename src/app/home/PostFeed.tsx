@@ -86,6 +86,7 @@ export default function PostFeed() {
     const data = await results.json();
     const postsWithParsedDates = data.posts.map((post: Post) => ({
       ...post,
+      rating: post.rating / 2,
       createdAt: new Date(post.createdAt),
     }));
     setPosts(postsWithParsedDates);

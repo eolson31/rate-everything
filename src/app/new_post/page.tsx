@@ -27,7 +27,7 @@ export default function newPost() {
           authorID: user.id,
           title,
           description: review,
-          rating: Number(rating),
+          rating: Number(rating * 2),
         }),
     });
     // Handle response
