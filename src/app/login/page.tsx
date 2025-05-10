@@ -6,11 +6,25 @@ import { useState } from "react";
 
 export default function Login() {
   const router = useRouter();
-  const { setUsername } = useLoggedIn();
+  const { setUser } = useLoggedIn();
   const [inputUsername, setInputUsername] = useState("");
 
-  const handleLogin = () => {
-    setUsername(inputUsername);
+  const handleLogin = async () => {
+    const result = await fetch("/api/user", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({
+        username: inputUsername,
+      }),
+    });
+    // Handle response
+    if (result.ok) {
+      const data = await result.json();
+      console.log("Retrieved user from database with ID:", data.user);
+      setUser(data.user);
+    } else {
+      console.error("Failed to retrieve user");
+    }
     router.push("/home");
   };
 

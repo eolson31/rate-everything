@@ -2,34 +2,32 @@
 
 import { prisma } from "@/lib/prisma";
 
-export async function get_all_posts_from_database(/*currentUserId: number*/) {
+export async function get_all_posts_from_database() {
     const posts = await prisma.post.findMany({
         include: {
             author: {
                 select: {
                     name: true,
                 },
-            }, votes: {
-                //where: { userId: currentUserId },
+            },
+            votes: {
                 select: { isUpvote: true },
-                take: 1,
             }
         },
     });
-    return posts.map((p) => ({
-        id:          p.id,
-        title:       p.title,
-        description: p.description,
-        rating:      p.rating,
-        createdAt:   p.createdAt,
-        author:      p.author,
-        votes:       p.voteCount,
-        userVote:    p.votes.length
-                    ? p.votes[0].isUpvote
-                      ? 1
-                      : -1
-                    : 0,
-      }));
+    return posts;
+}
+
+export async function get_all_user_votes(userID: number) {
+    return await prisma.vote.findMany({
+        where: {
+            userId: userID,
+        },
+        select: {
+            postId: true,
+            isUpvote: true,
+        }
+    })
 }
 
 export async function get_user_in_database(username: string) {
@@ -77,5 +75,51 @@ export async function delete_post_in_database(postID: number) {
 export async function delete_user_in_database(userID: number) {
     return await prisma.user.delete({
         where: {id: userID},
+    });
+}
+
+export async function update_upvote_in_database(postID: number, userID: number, isUpvote: boolean) {
+    const existing_vote = await prisma.vote.findUnique({
+        where: {
+            userId_postId: {
+                postId: postID,
+                userId: userID,
+            },
+        },
+    })
+
+    if (existing_vote) {
+        // Update existing
+        return prisma.vote.update({
+            where: {
+                userId_postId: {
+                    postId: postID,
+                    userId: userID,
+                },
+            },
+            data: {
+                isUpvote,
+            },
+        });
+    } else {
+        // Create new entry
+        return await prisma.vote.create({
+            data: {
+                userId: userID,
+                postId: postID,
+                isUpvote,
+            },
+        });
+    }
+}
+
+export async function delete_upvote_in_database(postID: number, userID: number) {
+    return prisma.vote.delete({
+        where: {
+            userId_postId: {
+                postId: postID,
+                userId: userID,
+            },
+        },
     });
 }

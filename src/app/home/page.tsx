@@ -9,9 +9,7 @@ export default function PostFeedClient() {
   const router = useRouter();
   const [search, setSearch] = useState("");
 
-  const handlePost = () => {
-    router.push("/new_post");
-  };
+  
 
   return (
     <div>

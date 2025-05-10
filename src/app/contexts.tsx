@@ -2,18 +2,23 @@
 
 import { createContext, useContext, useState } from 'react';
 
+interface UserProfile {
+  id: number,
+  username: string,
+}
+
 interface LoggedInContextType {
-  username: string;
-  setUsername: React.Dispatch<React.SetStateAction<string>>;
+  user: UserProfile | null;
+  setUser: React.Dispatch<React.SetStateAction<UserProfile | null>>;
 }
 
 const LoggedInContext = createContext<LoggedInContextType | undefined>(undefined);
 
 export const LoggedInProvider = ({ children }: { children: React.ReactNode }) => {
-  const [username, setUsername] = useState<string>("");
+  const [user, setUser] = useState<UserProfile | null>(null);
 
   return (
-    <LoggedInContext.Provider value={{ username, setUsername }}>
+    <LoggedInContext.Provider value={{ user, setUser }}>
       {children}
     </LoggedInContext.Provider>
   );

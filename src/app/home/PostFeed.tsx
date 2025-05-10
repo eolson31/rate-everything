@@ -3,7 +3,6 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useLoggedIn } from "../contexts";
-import { get_all_posts_from_database } from "../queries";
 
 
 type Post = {
@@ -15,9 +14,13 @@ type Post = {
   author: {
     name: string;
   };
-  voteCount: number;
-  userVote: number;
+  votes: Vote[];
 };
+
+type Vote = {
+  postId: number,
+  isUpvote: boolean,
+}
 
 type StarRatingButtonProps = {
   rating: number;
@@ -27,82 +30,13 @@ type StarRatingButtonProps = {
   initialUserVote: number;
 };
 
-function StarRatingButton({ rating, onChange, postId, initialCount, initialUserVote }: StarRatingButtonProps) {
+function StarRatingButton({ rating, onChange }: StarRatingButtonProps) {
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>, starIndex: number) => {
     const { left, width } = e.currentTarget.getBoundingClientRect();
     const clickX = e.clientX - left;
     const clickedHalf = clickX < width / 2;
     const newRating = clickedHalf ? starIndex - 0.5 : starIndex;
     onChange(newRating);
-  };
-  const [count, setCount] = useState(initialCount);
-  const [votedup, setVotedUp] = useState(false);
-  const [voteddown, setVotedDown] = useState(false);
-  const [userVote, setUserVote] = useState(0);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    setCount(initialCount);
-    setUserVote(initialUserVote);
-    setVotedUp(initialUserVote === 1);
-    setVotedDown(initialUserVote === -1);
-    setLoading(false);
-  }, [initialCount, initialUserVote]);
-  
-
-  const updateVote = async (delta: number) => {
-    setLoading(true);
-
-    const res = await fetch("/api/vote", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        postId: postId,
-        delta: delta,
-      }),
-    });
-  
-    const data = await res.json();
-    if (data.success) {
-      setLoading(false);
-      setCount(data.count); 
-    } else {
-      console.error(data.error);
-    }
-  };
-
-  const handleUpVote = () => {
-    if (votedup) {
-      setCount(count - 1);
-      setUserVote(0);
-      setVotedUp(false);
-      updateVote(-1);
-    } else {
-      const adjustment = voteddown ? 2 : 1;
-      setCount(count + adjustment);
-      setUserVote(1);
-      setVotedUp(true);
-      setVotedDown(false);
-      updateVote(adjustment);
-    }
-  };
-
-  const handleDownVote = () => {
-    if (voteddown) {
-      setCount(count + 1);
-      setUserVote(0);
-      setVotedDown(false);
-      updateVote(1);
-    } else {
-      const adjustment = votedup ? 2 : 1;
-      setCount(count - adjustment);
-      setUserVote(-1);
-      setVotedDown(true);
-      setVotedUp(false);
-      updateVote(-adjustment);
-    }
   };
 
   return (
@@ -131,23 +65,6 @@ function StarRatingButton({ rating, onChange, postId, initialCount, initialUserV
         );
       })}
       <span className="ml-2 text-sm text-gray-600">{rating.toFixed(1)}/5</span>
-      <button
-        onClick={handleUpVote}
-        className={`flex items-center px-2 py-1 text-sm rounded-full voteButton border ${
-          votedup ? "bg-blue-200 text-blue-800" : ""
-        } hover:bg-blue-300`}
-      >
-        👍
-      </button>
-      <span className="px-2">{Number.isNaN(count) ? "..." : count}</span>
-      <button
-        onClick={handleDownVote}
-        className={`flex items-center px-2 py-1 voteButton text-sm rounded-full border ${
-          voteddown ? "bg-blue-200 text-blue-800" : ""
-        } hover:bg-blue-300`}
-      >
-        👎 
-      </button>
     </div>
   );
 }
@@ -157,7 +74,8 @@ export default function PostFeed() {
   const [postRatings, setPostRatings] = useState<{ [postId: number]: number }>({});
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const { username } = useLoggedIn();
+  const [userVotes, setUserVotes] = useState<Vote[]>([]);
+  const { user } = useLoggedIn();
 
   const router = useRouter();
   
@@ -166,7 +84,7 @@ export default function PostFeed() {
     };
 
   const fetchPosts = async () => {
-    setLoading(true);
+    // Get posts
     const results = await fetch("/api/posts");
     const data = await results.json();
     const postsWithParsedDates = data.posts.map((post: Post) => ({
@@ -175,15 +93,19 @@ export default function PostFeed() {
     }));
     setPosts(postsWithParsedDates);
     setPostRatings(Object.fromEntries(postsWithParsedDates.map((p: {id: any; rating: any}) => [p.id, p.rating])));
-    setLoading(false);
+    // Get user votes
+    console.log(user);
+    const vote_results = await fetch(`/api/vote?userId=${user?.id}`)
+    const vote_data = await vote_results.json();
+    console.log(vote_data);
+    setUserVotes(vote_data.votes);
   };  
-
+  
   useEffect(() => {
+    setLoading(true);
     fetchPosts();
-  }, []);
-
-  // Listen for events from the server (e.g., new posts, deleted posts)
-  useEffect(() => {
+    setLoading(false);
+    // Listen for events from the server (e.g., new posts, deleted posts)
     const eventSource = new EventSource("/api/event_stream");
 
     eventSource.onmessage = (event) => {
@@ -239,6 +161,62 @@ export default function PostFeed() {
     post.author.name.toLowerCase().includes(search.toLowerCase())
   );
 
+  const is_post_upvoted = (post: Post) => {
+    return userVotes.find(vote => vote.postId === post.id)?.isUpvote;
+  }
+
+  const is_post_downvoted = (post: Post) => {
+    const vote = userVotes.find(vote => vote.postId === post.id);
+    return vote !== undefined && vote.isUpvote === false;
+  }
+
+  const handleVote = async (post: Post, button: string) => {
+    let toDelete = false;
+    let isUpvote = null;
+    if ((button === "upvote" && is_post_upvoted(post)) || (button === "downvote" && is_post_downvoted(post))) {
+      // Undoing a clicked button
+      toDelete = true;
+    } else {
+      // Clicking another button
+      isUpvote = button === "upvote"
+    }
+    // Update local list
+    if (toDelete) {
+      setUserVotes(previous => previous.filter(vote => vote.postId !== post.id));
+
+    } else if (isUpvote !== null) {
+        setUserVotes(previousVotes => {
+        const existingVote = previousVotes.find(vote => vote.postId === post.id);
+        if (existingVote) {
+          // Update the existing vote
+          return previousVotes.map(vote =>
+            vote.postId === post.id ? { ...vote, isUpvote } : vote
+          );
+        } else {
+          // Add a new vote
+          return [...previousVotes, { postId: post.id, userId: user?.id, isUpvote }];
+        }
+      });
+    }
+
+    // Update database
+    const result = await fetch("/api/vote", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        postId: post.id,
+        userId: user?.id,
+        isUpvote,
+        toDelete,
+      }),
+    });
+    if (!result.ok) {
+      console.error("Failed to update vote");
+    }
+
+    fetchPosts();
+  }
+
   return (
     <main className="flex flex-col items-center p-6 space-y-6">
 
@@ -288,7 +266,7 @@ export default function PostFeed() {
                   {post.createdAt.toLocaleTimeString()}
                 </p>
               </div>
-              {post.author.name === username && (
+              {post.author.name === user?.username && (
                 <button
                   id={`delete-${post.id}`}
                   onClick={() => deletePost(post.id)}
@@ -301,14 +279,33 @@ export default function PostFeed() {
             </div>
             <div key={`rating-${post.id}`} className="pt-2">
               <StarRatingButton
-                postId={post.id}
-                initialCount={post.voteCount}
-                initialUserVote={post.userVote ?? 0}
                 rating={postRatings[post.id] ?? post.rating}
                 onChange={(newRating) => {
                   setPostRatings((prev) => ({ ...prev, [post.id]: newRating }));
                 }}
               />
+            </div>
+            <div className="flex items-center">
+              <button
+                  onClick={() => handleVote(post, "upvote")}
+                  className={`flex items-center px-2 py-1 text-sm rounded-full voteButton border ${
+                    is_post_upvoted(post) ? "bg-blue-200 text-blue-800" : ""
+                  } hover:bg-blue-300`}
+                >
+                  👍
+                </button>
+                <span className="px-2">{post.votes.reduce((sum, vote) => {
+                  return sum + (vote.isUpvote ? 1 : -1);
+                }, 0)
+                }</span>
+                <button
+                  onClick={() => handleVote(post, "downvote")}
+                  className={`flex items-center px-2 py-1 voteButton text-sm rounded-full border ${
+                    is_post_downvoted(post) ? "bg-blue-200 text-blue-800" : ""
+                  } hover:bg-blue-300`}
+                >
+                  👎 
+                </button>
             </div>
           </div>
         ))

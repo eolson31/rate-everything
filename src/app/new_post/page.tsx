@@ -1,14 +1,12 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { describe } from "node:test";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useLoggedIn } from "../contexts";
 
 export default function newPost() {
   const router = useRouter();
-  const { username } = useLoggedIn();
-  let authorID = -1;
+  const { user } = useLoggedIn();
   const [title, setTitle] = useState("");
   const [review, setReview] = useState("");
   const [rating, setRating] = useState(0);
@@ -16,26 +14,9 @@ export default function newPost() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     // Check username
-    if (!username) {
+    if (!user) {
       alert("You must be logged in to submit a review.");
       return;
-    }
-
-    // Get userID from database
-    const result1 = await fetch("/api/user", {
-      method: "POST",
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({
-        username,
-      }),
-    });
-    // Handle response
-    if (result1.ok) {
-      const data = await result1.json();
-      console.log("Retrieved user from database with ID:", data.user);
-      authorID = data.user.id;
-    } else {
-      console.error("Failed to retrieve user");
     }
 
     // Send POST request to server
@@ -43,7 +24,7 @@ export default function newPost() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          authorID,
+          authorID: user.id,
           title,
           description: review,
           rating: Number(rating),

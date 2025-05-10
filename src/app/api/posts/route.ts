@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { create_post_in_database, delete_post_in_database, get_all_posts_from_database } from "@/app/queries";
 import { broadcast } from "../event_stream/server_side_events";
+import { REPLCommand } from "repl";
 
 export async function GET(request: Request) {
     const posts = await get_all_posts_from_database();
@@ -12,7 +13,7 @@ export async function POST(request: Request) {
     const {authorID, title, description, rating} = body;
     // Explicit error handling
     if (!authorID || !title) {
-        return NextResponse.json({success: false, error: "Missing a required field: authorID, title, description, and rating"}, {status: 404});
+        return NextResponse.json({success: false, error: "Missing a required field: authorID, title"}, {status: 404});
     }
     // Create in database
     try {
