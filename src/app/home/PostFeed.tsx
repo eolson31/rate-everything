@@ -25,9 +25,6 @@ type Vote = {
 type StarRatingButtonProps = {
   rating: number;
   onChange: (newRating: number) => void;
-  postId: number;
-  initialCount: number;
-  initialUserVote: number;
 };
 
 function StarRatingButton({ rating, onChange }: StarRatingButtonProps) {
@@ -280,12 +277,10 @@ export default function PostFeed() {
             <div key={`rating-${post.id}`} className="pt-2">
               <StarRatingButton
                 rating={postRatings[post.id] ?? post.rating}
-                onChange={(newRating) => {
-                  setPostRatings((prev) => ({ ...prev, [post.id]: newRating }));
-                }}
+                onChange={() => {}}
               />
             </div>
-            <div className="flex items-center">
+            <div style={{display: "flex"}} className="flex items-center">
               <button
                   onClick={() => handleVote(post, "upvote")}
                   className={`flex items-center px-2 py-1 text-sm rounded-full voteButton border ${
