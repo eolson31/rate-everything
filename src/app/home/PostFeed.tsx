@@ -96,6 +96,7 @@ export default function PostFeed() {
     const vote_data = await vote_results.json();
     console.log(vote_data);
     setUserVotes(vote_data.votes);
+    setLoading(false);
   };  
   
   useEffect(() => {
@@ -103,9 +104,7 @@ export default function PostFeed() {
     if (user === null) {
       router.push("/login")
     }
-
     fetchPosts();
-    setLoading(false);
     // Listen for events from the server (e.g., new posts, deleted posts)
     const eventSource = new EventSource("/api/event_stream");
 
