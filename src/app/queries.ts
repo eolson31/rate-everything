@@ -62,6 +62,7 @@ export async function create_post_in_database(userID: number, title: string, des
                     name: true,
                 },
             },
+            votes: true,
         },
     })
 }

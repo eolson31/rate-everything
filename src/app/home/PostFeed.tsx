@@ -110,9 +110,10 @@ export default function PostFeed() {
 
     eventSource.onmessage = (event) => {
       const data = JSON.parse(event.data);
-
+      console.log(event)
       if (data.type === "newPost") {
         data.post.createdAt = new Date(data.post.createdAt);
+        data.post.rating /= 2;
         setPosts((previous) => [...previous, data.post]);
         setPostRatings((prev) => ({ ...prev, [data.post.id]: data.post.rating }));
       } else if (data.type === "deletePost") {
