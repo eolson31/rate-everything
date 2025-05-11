@@ -73,9 +73,8 @@ export default function PostFeed() {
   const [search, setSearch] = useState("");
   const [userVotes, setUserVotes] = useState<Vote[]>([]);
   const { user } = useLoggedIn();
-  console.log(user)
   const router = useRouter();
-  
+
     const handlePost = () => {
       router.push("/new_post");
     };
@@ -100,6 +99,11 @@ export default function PostFeed() {
   };  
   
   useEffect(() => {
+
+    if (user === null) {
+      router.push("/login")
+    }
+
     fetchPosts();
     setLoading(false);
     // Listen for events from the server (e.g., new posts, deleted posts)
